@@ -7,11 +7,9 @@
 tech_trend(
   sce,
   dispersion = 0,
-  span = 0.4,
-  block = NA,
-  design = NA,
   assay_type = "logcounts",
   ncores = 1,
+  size.factors = 1,
   prefix = NULL,
   plot = TRUE
 )
@@ -22,25 +20,20 @@ tech_trend(
 \item{dispersion}{A numeric scalar specifying the dispersion for the NB distribution.
 If zero, a Poisson distribution is used.}
 
-\item{span}{the parameter \eqn{\alpha} which controls the degree of
-    smoothing.}
-
-\item{block}{A factor specifying the blocking level for each cell.}
-
-\item{design}{A numeric matrix describing the uninteresting factors contributing to expression in each cell.
-Alternatively, a single factor can be supplied for one-way layouts.}
-
 \item{assay_type}{A string specifying which assay values to use, e.g., "counts" or "logcounts".}
 
 \item{ncores}{Number of cores.}
 
+\item{size.factors}{A numeric vector of size factors.}
+
 \item{prefix}{Prefix for file name for the QC metrics histograms.}
 
-\item{plot}{TRUE/FASLE for whether plot the QC metrics histograms.}
+\item{plot}{TRUE/FALSE for whether to plot the QC metrics histograms.}
 }
 \value{
-A function accepting a mean log-expression as input and returning the variance of the log-expression as the output
+A function accepting a mean log-expression as input and returning the variance of the log-expression as the output.
 }
 \description{
-Make a technical trend using \pkg{scran} \code{makeTechTrend} and decompose the gene-level variance using \pkg{scran} \code{decomposeVar}.
+Make a technical trend using \pkg{scran} \code{makeTechTrend} and decompose the gene-level variance using
+\pkg{scran} \code{modelGeneVar}.
 }

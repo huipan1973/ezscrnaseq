@@ -10,7 +10,7 @@ find_clusters(
   seed = 100,
   snn_k = 10,
   ncores = 1,
-  method = "walktrap",
+  method = c("walktrap", "spinglass"),
   steps = 4,
   spins = 25,
   min_member = 20,
@@ -30,7 +30,8 @@ find_clusters(
 
 \item{ncores}{Number of cores.}
 
-\item{method}{"walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model and simulated annealing.}
+\item{method}{"walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model
+and simulated annealing.}
 
 \item{steps}{The length of the random walks to perform.}
 
@@ -43,13 +44,13 @@ unpopulated.}
 
 \item{prefix}{Prefix for file name for the QC metrics histograms.}
 
-\item{plot}{TRUE/FASLE for whether plot the QC metrics histograms.}
+\item{plot}{TRUE/FALSE for whether to plot the QC metrics histograms.}
 
-\item{verbose}{TRUE/FASLE for specifying whether diagnostics should be printed to screen.}
+\item{verbose}{TRUE/FALSE for specifying if diagnostics should be printed to screen.}
 }
 \value{
 A SingleCellExperiment object with cell cluster information.
 }
 \description{
-Find cell clusterd using \pkg{igraph}.
+Find cell clusters using \pkg{igraph}.
 }

@@ -1,11 +1,12 @@
 #' Find cell clusters
 #'
-#' Find cell clusterd using \pkg{igraph}.
+#' Find cell clusters using \pkg{igraph}.
 #'
 #' @param use_dimred A string specifying whether existing values in \code{reducedDims(sce)} should be used.
 #' @param seed Random seed.
 #' @param snn_k The number of nearest neighbors to consider during graph construction.
-#' @param method "walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model and simulated annealing.
+#' @param method "walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model
+#' and simulated annealing.
 #' @param min_member Minimal number of cluster members.
 #' @inheritParams qc_metrics
 #' @inheritParams scran::buildSNNGraph
@@ -14,17 +15,20 @@
 #' @return A SingleCellExperiment object with cell cluster information.
 #' @export
 
-find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, method="walktrap", steps=4, spins=25, min_member=20, prefix=NULL,
-                          plot=TRUE, verbose=TRUE){
+find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, method=c("walktrap", "spinglass"), steps=4,
+                          spins=25, min_member=20, prefix=NULL, plot=TRUE, verbose=TRUE){
 
-  suppressWarnings(set.seed(seed = 100, sample.kind = "Rounding"))
+  method <- match.arg(method)
+  stopifnot(is.logical(verbose), is.logical(plot), ncores > 0, is.numeric(seed), snn_k > 1, steps > 1, spins > 1 , min_member > 1)
+
+  suppressWarnings(set.seed(seed = seed, sample.kind = "Rounding"))
 
   cl_type <- ifelse(.Platform$OS.type=="windows", "SOCK", "FORK")
-  bp <- SnowParam(workers=ncores, type=cl_type)
-  register(bpstart(bp))
+  bp <- BiocParallel::SnowParam(workers=ncores, type=cl_type)
+  BiocParallel::register(bpstart(bp))
   # snn
-  snn_gr <- buildSNNGraph(sce, use.dimred=use_dimred, k=snn_k, BPPARAM=bp)
-  bpstop(bp)
+  snn_gr <- scran::buildSNNGraph(sce, use.dimred=use_dimred, k=snn_k, BPPARAM=bp)
+  BiocParallel::bpstop(bp)
 
   # cluster
   if(method=="walktrap"){
@@ -38,30 +42,31 @@ find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, m
   nc <- table(sce$Cluster)
 
   if (verbose){
-    cat("Clusters found:\n")
+    message("Clusters found:\n")
     print(kable(nc))
   }
 
-
   # modularity score
   ms <- igraph::modularity(cluster_out)
-  if (verbose) cat("\nModularity score: ", ms, "\n")
+  if (verbose) message("\nModularity score: ", ms, "\n")
 
   # total weight between nodes
-  mod_out <- clusterModularity(snn_gr, sce$Cluster, get.values=TRUE)
+  #mod_out <- clusterModularity(snn_gr, sce$Cluster, get.values=TRUE)
+  mod_out <- scran::clusterModularity(snn_gr, sce$Cluster, get.weights=TRUE)
   ratio <- log2(mod_out$observed / mod_out$expected + 1)
 
   if (plot){
     grDevices::pdf(paste(c(prefix, "clusters_total_weights.pdf"), collapse="_"))
     on.exit(grDevices::dev.off())
-    pheatmap(ratio, scale="none", cluster_rows=FALSE, cluster_cols=FALSE, color=grDevices::colorRampPalette(c("white", "blue"))(100))
+    pheatmap::pheatmap(ratio, scale="none", cluster_rows=FALSE, cluster_cols=FALSE, color=grDevices::colorRampPalette(c("white",
+			"blue"))(100))
   }
 
   # rm small clusters
   num_small <- sum(nc < min_member)
   if(num_small > 0){
-    if (verbose) cat("Removeing", num_small, "clusters that have cells less than", min_member, "\n")
-    sce <- sce[, sce$Cluster %in% names(nc)[nc >=min_member]]
+    if (verbose) message("\nRemoving ", num_small, " clusters that have cells less than ", min_member, "\n")
+    sce <- sce[, sce$Cluster %in% names(nc)[nc >= min_member], drop=FALSE]
     sce$Cluster <- droplevels(sce$Cluster)
   }
 

@@ -2,26 +2,27 @@
 #'
 #' Filter genes that have avarage counts fewer than \code{cutoff)}
 #'
-#' @param cutoff The cutoff of avarage counts for filtering.
+#' @param cutoff The cutoff of avarage counts for filtering. `cutoff` should be >= 0.
 #' @inheritParams qc_metrics
 #' @inheritParams scater::calcAverage
 #' @return A SingleCellExperiment object.
 #' @export
 
-filter_genes <- function(sce, cutoff=0, use_size_factors=FALSE, ncores=1, prefix=NULL, plot=TRUE, write=TRUE, verbose=TRUE){
+filter_genes <- function(sce, cutoff=0, ncores=1, prefix=NULL, plot=TRUE, write=TRUE, verbose=TRUE){
 
+  stopifnot(cutoff >= 0, ncores > 0, is.logical(verbose), is.logical(plot), is.logical(write))
   cl_type <- ifelse(.Platform$OS.type=="windows", "SOCK", "FORK")
-  bp <- SnowParam(workers=ncores, type=cl_type)
-  register(bpstart(bp))
-  rowData(sce)$ave.count <- calcAverage(sce, use_size_factors=use_size_factors, BPPARAM=bp)
-  bpstop(bp)
+  bp <- BiocParallel::SnowParam(workers=ncores, type=cl_type)
+  BiocParallel::register(bpstart(bp))
+  rowData(sce)$ave.count <- scater::calculateAverage(sce, BPPARAM=bp)
+  BiocParallel::bpstop(bp)
 
   keep <- rowData(sce)$ave.count > cutoff
   n_keep <- sum(keep)
-  if (verbose) cat("\nNumber of genes kept:", n_keep, "\n")
+  if (verbose) message("\nNumber of genes kept:", n_keep, "\n")
 
   if (plot){
-    grDevices::pdf(paste(c(prefix, "average_counts.pdf"), collapse="_"))
+    grDevices::pdf(paste(prefix, "average_counts.pdf", sep="_"))
     on.exit(grDevices::dev.off())
 
     graphics::hist(log10(rowData(sce)$ave.count), breaks=100, main="", col="grey", xlab=expression(Log[10]~"average count"))
@@ -29,8 +30,8 @@ filter_genes <- function(sce, cutoff=0, use_size_factors=FALSE, ncores=1, prefix
   }
 
   g2k <- as.data.frame(table(keep))
-  if (write) utils::write.csv(g2k, paste(c(prefix, "genes_to_keep.csv"), collapse="_"), row.names=FALSE)
+  if (write) utils::write.csv(g2k, paste(prefix, "genes_to_keep.csv", sep="_"), row.names=FALSE)
 
-  sce <- sce[keep, ]
+  sce <- sce[keep,, drop=FALSE]
   return(sce)
 }

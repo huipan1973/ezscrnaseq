@@ -6,11 +6,11 @@
 \usage{
 size_factors(
   sce,
-  min.size = 100,
+  min.size = 10,
   max.size = 3000,
   min.mean = 0.1,
-  group.col = NULL,
   method = "igraph",
+  group.col = NULL,
   seed = 100,
   ncores = 1,
   prefix = NULL,
@@ -28,10 +28,10 @@ size_factors(
 \item{min.mean}{A numeric scalar specifying the filter to be applied on the average count for each filter prior to computing ranks.
 Only used when \code{use.ranks=TRUE}, see \code{?\link[scran]{scaledColRanks}} for details.}
 
-\item{group.col}{column name of the grouping variable on the samples in colData(sce).}
-
 \item{method}{String specifying the clustering method to use.
 \code{"hclust"} uses hierarchical clustering while \code{"igraph"} uses graph-based clustering.}
+
+\item{group.col}{column name of the grouping variable on the samples in colData(sce).}
 
 \item{seed}{Random seed.}
 
@@ -39,9 +39,9 @@ Only used when \code{use.ranks=TRUE}, see \code{?\link[scran]{scaledColRanks}} f
 
 \item{prefix}{Prefix for file name for the QC metrics histograms.}
 
-\item{plot}{TRUE/FASLE for whether plot the QC metrics histograms.}
+\item{plot}{TRUE/FALSE for whether to plot the QC metrics histograms.}
 
-\item{verbose}{TRUE/FASLE for specifying whether diagnostics should be printed to screen.}
+\item{verbose}{TRUE/FALSE for specifying if diagnostics should be printed to screen.}
 }
 \value{
 A SingleCellExperiment object with size factors.

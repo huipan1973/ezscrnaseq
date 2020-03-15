@@ -9,12 +9,11 @@ find_markers(
   clusters,
   annot,
   block = NULL,
-  design = NULL,
-  pval.type = "any",
   lfc = 1,
-  test.type = "t",
-  direction = "up",
-  assay_type = "logcounts",
+  test.type = c("t", "wilcox", "binom"),
+  direction = c("up", "down"),
+  pval.type = c("any", "all"),
+  assay_type = c("logcounts", "counts"),
   ncores = 1,
   fdr_cutoff = 0.25,
   prefix = NULL,
@@ -30,10 +29,6 @@ find_markers(
 
 \item{block}{Vector specify blocking.}
 
-\item{design}{Design matirx.}
-
-\item{pval.type}{A string specifying how p-values are to be combined across pairwise comparisons for a given group/cluster.}
-
 \item{lfc}{Log fold-change.}
 
 \item{test.type}{String specifying the type of pairwise test to perform -
@@ -41,6 +36,8 @@ a t-test with \code{"t"}, a Wilcoxon rank sum test with \code{"wilcox"},
 or a binomial test with \code{"binom"}.}
 
 \item{direction}{Direction of change.}
+
+\item{pval.type}{A string specifying how p-values are to be combined across pairwise comparisons for a given group/cluster.}
 
 \item{assay_type}{A string specifying which assay values to use, e.g., "counts" or "logcounts".}
 
@@ -50,7 +47,7 @@ or a binomial test with \code{"binom"}.}
 
 \item{prefix}{Prefix for file name for the QC metrics histograms.}
 
-\item{write}{TRUE/FASLE for whether write the table of filtered cells.}
+\item{write}{TRUE/FALSE for whether to write the table of filtered cells.}
 }
 \value{
 A data.frame for the statistics and annotation of top marker geness

@@ -7,7 +7,6 @@
 filter_genes(
   sce,
   cutoff = 0,
-  use_size_factors = FALSE,
   ncores = 1,
   prefix = NULL,
   plot = TRUE,
@@ -18,19 +17,17 @@ filter_genes(
 \arguments{
 \item{sce}{A SingleCellExperiment object containing expression values, usually counts.}
 
-\item{cutoff}{The cutoff of avarage counts for filtering.}
-
-\item{use_size_factors}{Deprecated, same as \code{size_factors}.}
+\item{cutoff}{The cutoff of avarage counts for filtering. \code{cutoff} should be >= 0.}
 
 \item{ncores}{Number of cores.}
 
 \item{prefix}{Prefix for file name for the QC metrics histograms.}
 
-\item{plot}{TRUE/FASLE for whether plot the QC metrics histograms.}
+\item{plot}{TRUE/FALSE for whether to plot the QC metrics histograms.}
 
-\item{write}{TRUE/FASLE for whether write the table of filtered cells.}
+\item{write}{TRUE/FALSE for whether to write the table of filtered cells.}
 
-\item{verbose}{TRUE/FASLE for specifying whether diagnostics should be printed to screen.}
+\item{verbose}{TRUE/FALSE for specifying if diagnostics should be printed to screen.}
 }
 \value{
 A SingleCellExperiment object.

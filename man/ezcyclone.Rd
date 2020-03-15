@@ -6,8 +6,9 @@
 \usage{
 ezcyclone(
   sce,
-  organism = "hsa",
-  gene.names = rownames(sce),
+  organism = c("hsa", "mmu"),
+  gene.names = NULL,
+  pairs = NULL,
   ncores = 1,
   seed = 100,
   iter = 1000,
@@ -19,9 +20,13 @@ ezcyclone(
 \arguments{
 \item{sce}{A SingleCellExperiment object containing expression values, usually counts.}
 
-\item{organism}{hsa or mmu for human or mouse genes.}
+\item{organism}{\code{hsa} or \code{mmu} for human or mouse genes pre-trained marker sets.}
 
-\item{gene.names}{Ensembl gene IDs for genes in \code{sce}.}
+\item{gene.names}{Ensembl gene IDs for genes in \code{sce}. \code{length(gene.names)} should match with
+\code{nrow(sce)}.}
+
+\item{pairs}{Pair information for training marker sets. If set to \code{NULL}, uses pre-trained marker sets. Some genes
+in pairs should overlap with \code{row.names(sce)}.}
 
 \item{ncores}{Number of cores.}
 
@@ -33,11 +38,11 @@ ezcyclone(
 
 \item{min.pairs}{An integer scalar specifying the minimum number of pairs for cycle estimation.}
 
-\item{verbose}{TRUE/FASLE for specifying whether diagnostics should be printed to screen.}
+\item{verbose}{TRUE/FALSE for specifying if diagnostics should be printed to screen.}
 }
 \value{
 A list containing phases, scores, and normalized.scores.
 }
 \description{
-Cell cycle phase classification using \pkg{scran} \code{cyclone}
+Cell cycle phase classification using \pkg{scran} \code{cyclone}.
 }
