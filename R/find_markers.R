@@ -15,7 +15,7 @@
 #' @export
 
 find_markers <- function(sce, clusters, annot, block=NULL, lfc=1,  test.type=c("t", "wilcox", "binom"),
-                          direction=c("up", "down"),  pval.type=c("any", "all"), assay_type=c("logcounts", "counts", "corrected"),
+                          direction=c("up", "down", "any"),  pval.type=c("any", "all"), assay_type=c("logcounts", "counts", "corrected"),
 						              ncores=1, fdr_cutoff=0.25, prefix=NULL, write=TRUE){
 
   direction <- match.arg(direction)
