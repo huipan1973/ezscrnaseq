@@ -11,7 +11,7 @@ find_markers(
   block = NULL,
   lfc = 1,
   test.type = c("t", "wilcox", "binom"),
-  direction = c("up", "down"),
+  direction = c("up", "down", "any"),
   pval.type = c("any", "all"),
   assay_type = c("logcounts", "counts", "corrected"),
   ncores = 1,

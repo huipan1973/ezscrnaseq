@@ -28,8 +28,7 @@ qc_metrics <- function(sce, sym_col="symbol", by_nmads=TRUE, thresholds=c(3,3,3)
   cl_type <- ifelse(.Platform$OS.type=="windows", "SOCK", "FORK")
   bp <- BiocParallel::SnowParam(workers=ncores, type=cl_type)
   BiocParallel::register(BiocParallel::bpstart(bp))
-  #sce <- calculateQCMetrics(sceMock, feature_controls=list(Mt=is.mito), BPPARAM=bp)
-  #stats <- scater::perFeatureQCMetrics(sce, subsets=list(Mt=is.mito), BPPARAM=bp)
+
   stats <- scater::perCellQCMetrics(sce, subsets=list(Mt=is.mito), BPPARAM=bp)
   BiocParallel::bpstop(bp)
 
@@ -38,8 +37,6 @@ qc_metrics <- function(sce, sym_col="symbol", by_nmads=TRUE, thresholds=c(3,3,3)
   # qc calculation
   if (by_nmads) {
     if (any(thresholds > 5)) stop("Thresholds are too big for unsing NMADS")
-    #libsize.drop <- scater::isOutlier(sce$total_counts, nmads=thresholds[1], type="lower", log=TRUE)
-    #feature.drop <- scater::isOutlier(sce$total_features_by_counts, nmads=thresholds[2], type="lower", log=TRUE)
     libsize.drop <- scater::isOutlier(stats$sum, nmads=thresholds[1], type="lower", log=TRUE)
     feature.drop <- scater::isOutlier(stats$detected, nmads=thresholds[2], type="lower", log=TRUE)
     if (n_mito >0) mito.drop <- suppressWarnings(scater::isOutlier(stats$subsets_Mt_percent, nmads=thresholds[3], type="higher"))
@@ -56,8 +53,7 @@ qc_metrics <- function(sce, sym_col="symbol", by_nmads=TRUE, thresholds=c(3,3,3)
   if (n_mito > 0){
     qc <- data.frame(ByLibSize=sum(libsize.drop), ByFeature=sum(feature.drop), ByMito=sum(mito.drop),
                      Remaining=sum(!(libsize.drop | feature.drop | mito.drop)))
-    #cutoff <- data.frame(LibSize=max(sce$total_counts[libsize.drop]), Feature=max(sce$total_features_by_counts[feature.drop]),
-    #                    Mito=min(sce$pct_counts_Mt[mito.drop]))
+
     cutoff <- data.frame(LibSize=max(stats$sum[libsize.drop]), Feature=max(stats$detected[feature.drop]),
                         Mito=min(stats$subsets_Mt_percent[mito.drop]))
 

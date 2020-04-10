@@ -7,29 +7,29 @@ test_that("ncores=2", {
   metadata(sce1)$log.exprs.offset <- 1
   trend <- tech_trend(sce1, ncores=2, plot=FALSE)
   expect_warning(set.seed(seed = 100, sample.kind = "Rounding"))
-  expect_warning(sce1 <- denoisePCA(sce1, technical=trend, assay.type="logcounts", max.rank=100))
- 
+  expect_warning(sce1 <- denoisePCA(sce1, technical=trend$trend, assay.type="logcounts", max.rank=100))
+
   # method=NULL
   sceclust1 <- find_clusters(sce1, snn_k=5, ncores=2, plot=FALSE, verbose=FALSE)
   sceclust2 <- find_clusters(sce1, snn_k=5, ncores=1, plot=FALSE, verbose=FALSE)
   expect_equal(sceclust1, sceclust2)
- 
+
   # method="spinglass"
   sceclust1 <- find_clusters(sce1, snn_k=5, ncores=2, plot=FALSE, verbose=FALSE, method="spinglass")
   sceclust2 <- find_clusters(sce1, snn_k=5, ncores=1, plot=FALSE, verbose=FALSE, method="spinglass")
   expect_equal(sceclust1, sceclust2)
 
-  # default vs user provided 
+  # default vs user provided
   sceclust1 <- find_clusters(sce1, plot=FALSE, verbose=FALSE)
   sceclust2 <- find_clusters(sce1, snn_k=10, ncores=1, plot=FALSE, verbose=FALSE, method="walktrap", use_dimred="PCA",
                             seed=100, steps=4, min_member=20)
   expect_equal(sceclust1, sceclust2)
-   
+
   # defaul spins vs user provided spins for method spinglass
   sceclust1 <- find_clusters(sce1, ncores=1, plot=FALSE, verbose=FALSE, method="spinglass")
   sceclust2 <- find_clusters(sce1, spins=25, ncores=1, plot=FALSE, verbose=FALSE, method="spinglass")
   expect_equal(sceclust1, sceclust2)
- 
+
 
   # negative tests
   expect_error(find_clusters(sce1, ncores=1, verbose=1))
@@ -62,11 +62,11 @@ test_that("truth table", {
   scVar1 <- SingleCellExperiment(assays = list(counts = scVar))
   sce1 <- scater::logNormCounts(scVar1)
   metadata(sce1)$log.exprs.offset <- 1
-  expect_warning(trend <- tech_trend(sce1, ncores=2, plot=FALSE))
+  trend <- tech_trend(sce1, ncores=2, plot=FALSE)
   seed <- sample(1:100,1,replace=T)
   expect_warning(set.seed(seed = seed, sample.kind = "Rounding"))
-  expect_warning(sce1 <- denoisePCA(sce1, technical=trend, assay.type="logcounts", max.rank=100))
+  expect_warning(sce1 <- denoisePCA(sce1, technical=trend$trend, assay.type="logcounts", max.rank=100))
   sceclust1 <- find_clusters(sce1, snn_k=2, ncores=2, plot=FALSE , min_member=2, verbose=FALSE)
-  expect_true(all(as.character(sceclust1$Cluster) == c(rep("clus_1", times=5), rep("clus_2", times=5))) || 
+  expect_true(all(as.character(sceclust1$Cluster) == c(rep("clus_1", times=5), rep("clus_2", times=5))) ||
   all(as.character(sceclust1$Cluster) == c(rep("clus_2", times=5), rep("clus_1", times=5))))
 })

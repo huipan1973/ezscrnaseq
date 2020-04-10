@@ -17,15 +17,15 @@ test_that("default", {
   #test for ncores
   trend1 <- tech_trend(sce2, ncores=1, plot=FALSE)
   trend2 <- tech_trend(sce2, ncores=2, plot=FALSE)
-  expect_equal(trend1, trend2 )
+  expect_equal(trend1$trend, trend2$trend)
   # test for default dispersion
   trend1 <- tech_trend(sce2, ncores=1, plot=FALSE)
   trend2 <- tech_trend(sce2, dispersion=0, ncores=1, plot=FALSE)
-  expect_equal(trend1, trend2 )
+  expect_equal(trend1$trend, trend2$trend)
   # test for assay_type
   trend1 <- tech_trend(sce2, dispersion=0, ncores=1, plot=FALSE)
   trend2 <- tech_trend(sce2, dispersion=0, assay_type="logcounts", ncores=1, plot=FALSE)
-  expect_equal(trend1, trend2 )
+  expect_equal(trend1$trend, trend2$trend)
   #negative test
   expect_error(tech_trend(sce2, dispersion=0, assay_type="logcounts", ncores=1, plot=1))
   expect_error(tech_trend(sce2, dispersion=0, assay_type="logcounts", ncores=0, plot=FALSE))

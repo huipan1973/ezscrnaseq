@@ -7,20 +7,20 @@ test_that("find_markers", {
   metadata(sce2)$log.exprs.offset <- 1
   trend <- tech_trend(sce2, plot=FALSE)
   expect_warning(set.seed(seed = 100, sample.kind = "Rounding"))
-  expect_warning(sce3 <- denoisePCA(sce2, technical=trend, assay.type="logcounts", max.rank=100))
+  expect_warning(sce3 <- denoisePCA(sce2, technical=trend$trend, assay.type="logcounts", max.rank=100))
   sceCluster3 <- find_clusters(sce3, snn_k=5, plot=FALSE, verbose=FALSE)
-  
-  # ncores 1 vs 2 
+
+  # ncores 1 vs 2
   clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, ncores=1,
   		annot=data.frame(rowData(sce1),row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE)
 
-  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, ncores=2, 
+  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, ncores=2,
 		 annot=data.frame(rowData(sce1), row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE)
   expect_equal(clus_df1, clus_df2)
   # test.type ="t"
-  clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, 
+  clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster,
   		annot=data.frame(rowData(sce1), row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE)
-  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, test.type ="t", 
+  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, test.type ="t",
 		annot=data.frame(rowData(sce1), row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE)
   expect_equal(clus_df1, clus_df2)
   # test.type ="wilcox"
@@ -59,14 +59,14 @@ test_that("find_markers", {
   clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE, ncores=2, pval.type ="all")
   expect_equal(clus_df1, clus_df2)
-  
+
   # assay_type="logcounts",
   clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, ncores=1, write=FALSE)
   clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, ncores=1, write=FALSE, assay_type="logcounts")
   expect_equal(clus_df1, clus_df2)
-  
+
   # assay_type="counts",
   clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE, ncores=1, assay_type="counts")
@@ -76,14 +76,14 @@ test_that("find_markers", {
   # lfc =1
   clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE, ncores=1, assay_type="counts")
-  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, lfc =1, annot=data.frame(rowData(sce1), 
+  clus_df2 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, lfc =1, annot=data.frame(rowData(sce1),
 		 row.names=rownames(sce1)), fdr_cutoff=Inf, write=FALSE, ncores=1, assay_type="counts")
   expect_equal(clus_df1, clus_df2)
 
   # fdr_cutoff=0.25
   expect_error(find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), write=FALSE, ncores=1, assay_type="counts"))
-  expect_error(find_markers(sceCluster3, clusters=sceCluster3$Cluster, fdr_cutoff=0.25, annot=data.frame(rowData(sce1), 
+  expect_error(find_markers(sceCluster3, clusters=sceCluster3$Cluster, fdr_cutoff=0.25, annot=data.frame(rowData(sce1),
 		 row.names=rownames(sce1)), write=FALSE, ncores=1, assay_type="counts"))
 
 
@@ -107,9 +107,6 @@ test_that("find_markers", {
   #negative test  pval.type other
   expect_error(clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, pval.type=0.05, write=FALSE))
-  #negative test direction other
-  expect_error(clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
-		row.names=rownames(sce1)), fdr_cutoff=Inf, direction="any", write=FALSE))
   #negative test  assay_type other
   expect_error(clus_df1 <- find_markers(sceCluster3, clusters=sceCluster3$Cluster, annot=data.frame(rowData(sce1),
 		row.names=rownames(sce1)), fdr_cutoff=Inf, assay_type="MyAssay", write=FALSE))
