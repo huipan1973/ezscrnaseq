@@ -8,7 +8,7 @@
 #' @return A list of a dataframe for the variance components and a function accepting a mean log-expression as input and returning the variance of tecnical noise.
 #' @export
 
-tech_trend <- function(sce, dispersion=0, assay_type="counts", block=NULL, design=NULL, ncores=1, prefix=NULL, plot=TRUE){
+tech_trend <- function(sce, dispersion=0, assay_type="logcounts", block=NULL, design=NULL, ncores=1, prefix=NULL, plot=TRUE){
 
   stopifnot(ncores > 0, dispersion >=0, is.logical(plot))
 

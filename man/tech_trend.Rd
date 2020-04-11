@@ -7,7 +7,7 @@
 tech_trend(
   sce,
   dispersion = 0,
-  assay_type = "counts",
+  assay_type = "logcounts",
   block = NULL,
   design = NULL,
   ncores = 1,
