@@ -5,8 +5,9 @@
 #' @param use_dimred A string specifying whether existing values in \code{reducedDims(sce)} should be used.
 #' @param seed Random seed.
 #' @param snn_k The number of nearest neighbors to consider during graph construction.
-#' @param method "walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model
-#' and simulated annealing.
+#' @param snn_type The type of weighting scheme to use for shared neighbors.
+#' @param method "walktrap", "spinglass", or "louvain" for finding communities in graphs via short random walks, a spin-glass model
+#' and simulated annealing, or multi-level modularity optimization.
 #' @param min_member Minimal number of cluster members.
 #' @inheritParams qc_metrics
 #' @inheritParams scran::buildSNNGraph
@@ -15,19 +16,21 @@
 #' @return A SingleCellExperiment object with cell cluster information.
 #' @export
 
-find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, method=c("walktrap", "spinglass"), steps=4,
+find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, snn_type=c("rank", "number", "jaccard"),
+                          ncores=1, method=c("walktrap", "spinglass", "louvain"), steps=4,
                           spins=25, min_member=20, prefix=NULL, plot=TRUE, verbose=TRUE){
 
+  snn_type <- match.arg(snn_type)
   method <- match.arg(method)
-  stopifnot(is.logical(verbose), is.logical(plot), ncores > 0, is.numeric(seed), snn_k > 1, steps > 1, spins > 1 , min_member >1)
+  stopifnot(is.logical(verbose), is.logical(plot), ncores>0, is.numeric(seed), snn_k>1, steps>1, spins>1 , min_member>1)
 
-  suppressWarnings(set.seed(seed = seed, sample.kind = "Rounding"))
+  suppressWarnings(set.seed(seed=seed, sample.kind="Rounding"))
 
   cl_type <- ifelse(.Platform$OS.type=="windows", "SOCK", "FORK")
   bp <- BiocParallel::SnowParam(workers=ncores, type=cl_type)
   BiocParallel::register(BiocParallel::bpstart(bp))
   # snn
-  snn_gr <- scran::buildSNNGraph(sce, use.dimred=use_dimred, k=snn_k, BPPARAM=bp)
+  snn_gr <- scran::buildSNNGraph(sce, use.dimred=use_dimred, k=snn_k, type=snn_type, BPPARAM=bp)
   BiocParallel::bpstop(bp)
 
   # cluster
@@ -35,6 +38,8 @@ find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, m
     cluster_out <- igraph::cluster_walktrap(snn_gr, steps=steps)
   } else if(method=="spinglass"){
     cluster_out <- igraph::cluster_spinglass(snn_gr, spins=spins)
+  } else if(method=="louvain"){
+    cluster_out <- igraph::cluster_louvain(snn_gr)
   }
 
   sce$Cluster <- factor(cluster_out$membership)
@@ -65,9 +70,9 @@ find_clusters <- function(sce, use_dimred="PCA", seed=100, snn_k=10, ncores=1, m
 
   # rm small clusters
   num_small <- sum(nc < min_member)
-  if(num_small > 0){
+  if(num_small>0){
     if (verbose) message("\nRemoving ", num_small, " clusters that have cells less than ", min_member, "\n")
-    sce <- sce[, sce$Cluster %in% names(nc)[nc >=min_member]]
+    sce <- sce[, sce$Cluster %in% names(nc)[nc>=min_member]]
     sce$Cluster <- droplevels(sce$Cluster)
   }
 

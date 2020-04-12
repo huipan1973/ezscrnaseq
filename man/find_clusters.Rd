@@ -9,8 +9,9 @@ find_clusters(
   use_dimred = "PCA",
   seed = 100,
   snn_k = 10,
+  snn_type = c("rank", "number", "jaccard"),
   ncores = 1,
-  method = c("walktrap", "spinglass"),
+  method = c("walktrap", "spinglass", "louvain"),
   steps = 4,
   spins = 25,
   min_member = 20,
@@ -28,10 +29,12 @@ find_clusters(
 
 \item{snn_k}{The number of nearest neighbors to consider during graph construction.}
 
+\item{snn_type}{The type of weighting scheme to use for shared neighbors.}
+
 \item{ncores}{Number of cores.}
 
-\item{method}{"walktrap" or "spinglass" for finding communities in graphs via short random walks or a spin-glass model
-and simulated annealing.}
+\item{method}{"walktrap", "spinglass", or "louvain" for finding communities in graphs via short random walks, a spin-glass model
+and simulated annealing, or multi-level modularity optimization.}
 
 \item{steps}{The length of the random walks to perform.}
 
