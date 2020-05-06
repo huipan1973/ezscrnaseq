@@ -29,7 +29,7 @@ qc_metrics <- function(sce, sym_col="symbol", by_nmads=TRUE, thresholds=c(3,3,3)
   bp <- BiocParallel::SnowParam(workers=ncores, type=cl_type)
   BiocParallel::register(BiocParallel::bpstart(bp))
 
-  stats <- scater::perCellQCMetrics(sce, subsets=list(Mt=is.mito), BPPARAM=bp)
+  stats <- as.data.frame(scater::perCellQCMetrics(sce, subsets=list(Mt=is.mito), BPPARAM=bp))
   BiocParallel::bpstop(bp)
 
   SummarizedExperiment::colData(sce) <- cbind(SummarizedExperiment::colData(sce), stats)
